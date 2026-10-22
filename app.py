@@ -1,3 +1,4 @@
+
 """MINI-ERP - single-file Streamlit enterprise management system.
 Run:  pip install streamlit pandas  &&  streamlit run app.py
 """
@@ -64,6 +65,7 @@ def init_state():
     d = st.session_state
     d.setdefault("logged", False)
     d.setdefault("company", "")
+    d.setdefault("role", None)
     d.setdefault("email", "")
     d.setdefault("inv", pd.DataFrame(
         [["حاسوب محمول", 25, 18000.0, 22500.0], ["هاتف ذكي", 60, 7000.0, 9200.0],
@@ -83,9 +85,34 @@ def init_state():
     d.setdefault("crm", pd.DataFrame(
         [["Huawei", "تأخر توريد", "عالية", "مفتوحة"], ["Lenovo", "استفسار عن ضمان", "متوسطة", "قيد المعالجة"],
          ["Xiaomi", "طلب عرض سعر", "منخفضة", "مغلقة"]], columns=["العميل", "الموضوع", "الأولوية", "الحالة"]))
-    d.setdefault("hr", pd.DataFrame(
-        [["سلمى", "مديرة المبيعات", 22000.0, "نشط"], ["عبد الرحمن", "مسؤول المخزون", 15000.0, "نشط"]],
-        columns=["الموظف", "الوظيفة", "الراتب الشهري", "الحالة"]))
+    d.setdefault("hr", pd.DataFrame([
+        ["محمود الشناوي", "مجلس الإدارة", "الرئيس التنفيذي", 85000.0, "نشط", "2019-01-10"],
+        ["هدى عبد الله", "مجلس الإدارة", "مساعدة الرئيس التنفيذي", 28000.0, "نشط", "2020-06-01"],
+        ["كريم فؤاد", "الشؤون القانونية", "مستشار قانوني", 38000.0, "نشط", "2020-02-15"],
+        ["ريم صلاح", "الشؤون القانونية", "أخصائية عقود", 19000.0, "نشط", "2023-04-01"],
+        ["عبد الرحمن علي", "المخزون", "مسؤول المخزون", 21000.0, "نشط", "2021-09-05"],
+        ["مصطفى جابر", "المخزون", "أمين مستودع", 12500.0, "نشط", "2022-11-20"],
+        ["نهى إبراهيم", "المشتريات", "مديرة المشتريات", 34000.0, "نشط", "2020-08-12"],
+        ["طارق منصور", "المشتريات", "أخصائي توريد", 16500.0, "إجازة", "2022-05-09"],
+        ["ياسر عادل", "الإنتاج", "مدير المصنع", 42000.0, "نشط", "2019-10-01"],
+        ["أحمد سمير", "الإنتاج", "مهندس جودة", 26000.0, "نشط", "2021-01-17"],
+        ["حسام رضا", "الإنتاج", "مشرف خط إنتاج", 17500.0, "نشط", "2022-03-03"],
+        ["خالد مرزوق", "الإنتاج", "فني صيانة", 14000.0, "منتهي", "2021-02-02"],
+        ["سلمى حسن", "المبيعات", "مديرة المبيعات", 36000.0, "نشط", "2020-04-01"],
+        ["عمر خالد", "المبيعات", "مندوب مبيعات أول", 18000.0, "نشط", "2022-07-25"],
+        ["دينا فاروق", "المبيعات", "أمينة صندوق", 11500.0, "نشط", "2023-02-14"],
+        ["لمياء سعيد", "التسويق", "مديرة التسويق", 33000.0, "نشط", "2021-05-23"],
+        ["زياد نبيل", "التسويق", "أخصائي إعلانات رقمية", 19500.0, "نشط", "2023-01-08"],
+        ["منة الله حمدي", "التسويق", "مصممة محتوى", 14500.0, "فترة تجربة", "2026-09-01"],
+        ["إيمان رشدي", "خدمة العملاء", "مشرفة خدمة العملاء", 20000.0, "نشط", "2021-10-11"],
+        ["باسم عوض", "خدمة العملاء", "ممثل دعم فني", 13000.0, "نشط", "2023-06-19"],
+        ["شيماء لطفي", "المالية", "المديرة المالية", 45000.0, "نشط", "2019-12-02"],
+        ["وليد حافظ", "المالية", "محاسب أول", 22500.0, "نشط", "2021-07-04"],
+        ["رانيا مجدي", "الموارد البشرية", "مديرة الموارد البشرية", 31000.0, "نشط", "2020-09-14"],
+        ["أسماء جمال", "الموارد البشرية", "أخصائية توظيف", 16000.0, "نشط", "2023-03-27"],
+        ["هشام توفيق", "العلاقات العامة", "مدير العلاقات العامة", 30000.0, "نشط", "2020-11-30"],
+        ["جيهان سامي", "العلاقات العامة", "منسقة فعاليات", 15000.0, "إجازة", "2022-08-16"],
+    ], columns=["الموظف", "القسم", "الوظيفة", "الراتب الشهري", "الحالة", "تاريخ التعيين"]))
     d.setdefault("pr", pd.DataFrame(
         [["مؤتمر الابتكار التقني", "فعالية", "2026-11-15", "مخطط"], ["بيان صحفي للإطلاق", "إعلام", "2026-10-30", "قيد الإعداد"]],
         columns=["النشاط", "النوع", "التاريخ", "الحالة"]))
@@ -102,6 +129,33 @@ def clean_inv(df):
     for c in INV_COLS[1:]:
         df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0)
     return df.reset_index(drop=True)
+ 
+ 
+DEPTS = ["مجلس الإدارة", "الشؤون القانونية والإدارية", "إدارة المخزون", "المشتريات", "الإنتاج والتصنيع",
+         "المبيعات ونقاط البيع", "التسويق", "خدمة العملاء", "الحسابات والمالية", "الموارد البشرية", "العلاقات العامة"]
+# access codes -> permitted department ("ALL" = every department). For production use st.secrets + hashed passwords.
+ROLES = {"0000": "ALL", "1111": DEPTS[1], "2222": DEPTS[2], "3333": DEPTS[3], "4444": DEPTS[4], "5555": DEPTS[5],
+         "6666": DEPTS[6], "7777": DEPTS[7], "8888": DEPTS[8], "9999": DEPTS[9], "1010": DEPTS[10]}
+HR_DEPTS = ["مجلس الإدارة", "الشؤون القانونية", "المخزون", "المشتريات", "الإنتاج", "المبيعات", "التسويق",
+            "خدمة العملاء", "المالية", "الموارد البشرية", "العلاقات العامة"]
+HR_STATUS = ["نشط", "إجازة", "فترة تجربة", "منتهي"]
+ 
+ 
+def sheet(name, **kw):
+    """Smooth st.data_editor: the editor always receives a frozen source frame, so its internal edit-delta is never
+    re-applied on top of already-edited data (the cause of double typing / cleared cells). The live, edited frame is
+    mirrored to session_state[name] on every run so all modules see changes instantly."""
+    ekey = f"ed_{name}_{S.setdefault(name + '_v', 0)}"
+    if ekey not in S:  # first render, or returning to the page: restart from the committed data
+        S[name + "_src"] = S[name].copy()
+    ed = st.data_editor(S[name + "_src"], num_rows="dynamic", use_container_width=True, key=ekey, **kw)
+    S[name] = ed
+    return ed
+ 
+ 
+def touch(name):
+    """Call after changing S[name] programmatically on the same page as its editor, to reload the editor."""
+    S[name + "_v"] = S.get(name + "_v", 0) + 1
  
  
 def money(x):
@@ -121,7 +175,7 @@ def totals():
     revenue = float(s["الإيراد"].sum()) if len(s) else 0.0
     cogs = float(s["التكلفة"].sum()) if len(s) else 0.0
     purchases = float(p["الإجمالي"].sum()) if len(p) else 0.0
-    salaries = float(S.hr.loc[S.hr["الحالة"] == "نشط", "الراتب الشهري"].sum())
+    salaries = float(pd.to_numeric(S.hr.loc[S.hr["الحالة"].isin(["نشط", "فترة تجربة"]), "الراتب الشهري"], errors="coerce").sum())
     ads = float(S.marketing["الإنفاق"].sum())
     stock_val = float((inv["الكمية"] * inv["تكلفة الوحدة"]).sum())
     profit = revenue - cogs - salaries - ads
@@ -140,6 +194,7 @@ def landing():
         with st.form("onboard"):
             email = st.text_input("البريد الإلكتروني الإداري", placeholder="admin@company.com")
             comp = st.text_input("اسم الشركة أو المحل", placeholder="اسم المنشأة")
+            pw = st.text_input("كلمة المرور", type="password", placeholder="أدخل كلمة المرور")
             ok = st.form_submit_button("ابدأ بشكل مجاني", use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
         if ok:
@@ -147,8 +202,12 @@ def landing():
                 st.error("أدخل بريدا إلكترونيا صحيحا.")
             elif not comp.strip():
                 st.error("أدخل اسم الشركة أو المحل.")
+            elif not pw.strip():
+                st.error("أدخل كلمة المرور.")
+            elif pw.strip() not in ROLES:
+                st.error("كلمة المرور غير صحيحة. تحقق من الرمز وأعد المحاولة.")
             else:
-                S.email, S.company, S.logged = email.strip(), comp.strip(), True
+                S.email, S.company, S.role, S.logged = email.strip(), comp.strip(), ROLES[pw.strip()], True
                 st.rerun()
  
  
@@ -162,9 +221,8 @@ def board():
     kpi(c[2], "قيمة المخزون", money(t["stock_val"]))
     kpi(c[3], "عدد الموظفين", len(S.hr))
     st.markdown("#### جدول الخطة الاستراتيجية (قابل للتعديل مباشرة)")
-    ed = st.data_editor(S.board, num_rows="dynamic", use_container_width=True, key="ed_board",
+    ed = sheet("board",
                         column_config={"الحالة": st.column_config.SelectboxColumn(options=["قيد الدراسة", "قيد التنفيذ", "مكتمل", "متوقف"])})
-    S.board = ed
     st.download_button("تنزيل الجدول (CSV)", ed.to_csv(index=False).encode("utf-8-sig"), "board_sheet.csv", "text/csv")
  
  
@@ -195,7 +253,7 @@ def legal():
 def inventory():
     title("إدارة المخزون")
     st.caption("أي تعديل هنا ينعكس فورا على المبيعات والمشتريات والحسابات.")
-    ed = st.data_editor(S.inv, num_rows="dynamic", use_container_width=True, key="ed_inv",
+    ed = sheet("inv",
                         column_config={"الكمية": st.column_config.NumberColumn(min_value=0, step=1),
                                        "تكلفة الوحدة": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
                                        "سعر البيع": st.column_config.NumberColumn(min_value=0.0, format="%.2f")})
@@ -297,8 +355,7 @@ def pos():
  
 def marketing():
     title("التسويق")
-    ed = st.data_editor(S.marketing, num_rows="dynamic", use_container_width=True, key="ed_mkt")
-    S.marketing = ed
+    ed = sheet("marketing")
     sp, rv = float(ed["الإنفاق"].sum()), float(ed["الإيراد المنسوب"].sum())
     conv, clk = float(ed["التحويلات"].sum()), float(ed["النقرات"].sum())
     c = st.columns(4)
@@ -321,10 +378,10 @@ def crm():
         ok = c[3].form_submit_button("فتح تذكرة")
     if ok and sub.strip():
         S.crm = pd.concat([S.crm, pd.DataFrame([[cl, sub, pr, "مفتوحة"]], columns=S.crm.columns)], ignore_index=True)
-    ed = st.data_editor(S.crm, num_rows="dynamic", use_container_width=True, key="ed_crm",
+        touch("crm")
+    ed = sheet("crm",
                         column_config={"الحالة": st.column_config.SelectboxColumn(options=["مفتوحة", "قيد المعالجة", "مغلقة"]),
                                        "الأولوية": st.column_config.SelectboxColumn(options=["منخفضة", "متوسطة", "عالية"])})
-    S.crm = ed
     c = st.columns(3)
     kpi(c[0], "إجمالي التذاكر", len(ed))
     kpi(c[1], "مفتوحة", int((ed["الحالة"] == "مفتوحة").sum()))
@@ -356,22 +413,29 @@ def finance():
  
 def hr():
     title("الموارد البشرية")
-    ed = st.data_editor(S.hr, num_rows="dynamic", use_container_width=True, key="ed_hr",
-                        column_config={"الحالة": st.column_config.SelectboxColumn(options=["نشط", "إجازة", "منتهي"])})
-    S.hr = ed
-    act = ed[ed["الحالة"] == "نشط"]
-    c = st.columns(3)
-    kpi(c[0], "عدد الموظفين", len(ed))
-    kpi(c[1], "الموظفون النشطون", len(act))
-    kpi(c[2], "إجمالي الرواتب الشهرية", money(act["الراتب الشهري"].sum()))
+    ed = sheet("hr", column_config={
+        "القسم": st.column_config.SelectboxColumn(options=HR_DEPTS),
+        "الحالة": st.column_config.SelectboxColumn(options=HR_STATUS),
+        "الراتب الشهري": st.column_config.NumberColumn(min_value=0.0, step=500.0, format="%.0f")})
+    d = ed.copy()
+    d["الراتب الشهري"] = pd.to_numeric(d["الراتب الشهري"], errors="coerce").fillna(0)
+    pay = d[d["الحالة"].isin(["نشط", "فترة تجربة"])]
+    c = st.columns(4)
+    kpi(c[0], "عدد الموظفين", len(d))
+    kpi(c[1], "الموظفون النشطون", int((d["الحالة"] == "نشط").sum()))
+    kpi(c[2], "متوسط الراتب", money(pay["الراتب الشهري"].mean()) if len(pay) else "0")
+    kpi(c[3], "إجمالي الرواتب الشهرية", money(pay["الراتب الشهري"].sum()))
+    st.markdown("#### الرواتب الشهرية حسب القسم")
+    by = pay.groupby("القسم")["الراتب الشهري"].sum()
+    if len(by):
+        st.bar_chart(by, color="#9333ea")
  
  
 def pr():
     title("العلاقات العامة")
-    ed = st.data_editor(S.pr, num_rows="dynamic", use_container_width=True, key="ed_pr",
+    ed = sheet("pr",
                         column_config={"النوع": st.column_config.SelectboxColumn(options=["فعالية", "إعلام", "شراكة", "مسؤولية مجتمعية"]),
                                        "الحالة": st.column_config.SelectboxColumn(options=["مخطط", "قيد الإعداد", "منفذ", "ملغى"])})
-    S.pr = ed
     c = st.columns(3)
     kpi(c[0], "إجمالي الأنشطة", len(ed))
     kpi(c[1], "منفذة", int((ed["الحالة"] == "منفذ").sum()))
@@ -388,14 +452,17 @@ PAGES = {
 if not S.logged:
     landing()
 else:
+    allowed = list(PAGES.keys()) if S.role == "ALL" else [S.role]
     with st.sidebar:
         st.markdown('<div class="brand">MINI-ERP</div>', unsafe_allow_html=True)
-        st.markdown(f'<div class="company rtl">{S.company}<br>{S.email}</div>', unsafe_allow_html=True)
-        page = st.radio("الأقسام", list(PAGES.keys()), label_visibility="collapsed")
+        scope = "صلاحيات كاملة (جميع الأقسام)" if S.role == "ALL" else f"صلاحية: {S.role}"
+        st.markdown(f'<div class="company rtl">{S.company}<br>{S.email}<br>{scope}</div>', unsafe_allow_html=True)
+        page = st.radio("الأقسام", allowed, label_visibility="collapsed")
         st.markdown("---")
         if st.button("تسجيل الخروج", use_container_width=True):
-            for k in list(S.keys()):
-                del S[k]
+            S.logged, S.role, S.company, S.email = False, None, "", ""  # business data is kept for the next login
             st.rerun()
-    PAGES[page]()
- 
+    if page in allowed:  # server-side guard: a user can never render a page outside their role
+        PAGES[page]()
+    else:
+        st.error("ليس لديك صلاحية للوصول إلى هذا القسم.")
